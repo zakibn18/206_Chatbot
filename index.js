@@ -17,8 +17,8 @@ app.post("/api/chat", async (req, res) => {
   try {
     const message = req.body.message;
 
-    if (!message || Array.isArray(message)) {
-      return res.status(400).json({ 
+    if (!message || !Array.isArray(message)) {
+      return res.status(400).json({
         error: "Message harus berupa Array"
       });
     }
@@ -34,7 +34,7 @@ app.post("/api/chat", async (req, res) => {
         },
 
         body: JSON.stringify({
-          model: "inclusionai/ling-3.2-flash:free",
+          model: "openrouter/free",
           messages: message,
           temperature: 0.7,
           max_tokens: 1000,
@@ -62,11 +62,11 @@ app.post("/api/chat", async (req, res) => {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-          break;
+        break;
       }
 
-      buffer += decoder.decode(value, { 
-        stream: true 
+      buffer += decoder.decode(value, {
+        stream: true
       });
       const lines = buffer.split("\n");
       buffer = lines.pop();
@@ -74,10 +74,10 @@ app.post("/api/chat", async (req, res) => {
       for (const line of lines) {
         const trimmedLine = line.trim();
 
-        if (!trimmedLine){
+        if (!trimmedLine) {
           continue;
         }
-        if (trimmedLine.startsWith("data: ")) {
+        if (!trimmedLine.startsWith("data:")) {
           continue;
         }
 
@@ -99,7 +99,7 @@ app.post("/api/chat", async (req, res) => {
     }
     res.write("data: [DONE]\n\n");
     res.end();
-    
+
   } catch (error) {
     console.error("Server Error:", error);
     if (!res.headersSent) {
