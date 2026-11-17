@@ -56,3 +56,5 @@ app.post("/api/chat", async (req, res) => {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+
+    let buffer = "";
